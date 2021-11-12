@@ -4,19 +4,23 @@ import re
 import os
 import datetime
 import html
+import math
 
 
-def parser(x, y):
+def parser(x=1, y=179):
     time_sum = []
-    #read url
+
+    # read url
     for i in range(x, y):
         start_time = datetime.datetime.now()
         if i not in range(179):
                 raise ValueError("Only 179 procedures available")
         i = str(i)
+
+        # modifying number of synthesis to make correct url
         while True:
             if len(i) == 1:
-                n = '00'+ i
+                n = '00' + i
                 break
             if len(i) == 2:
                 n = '0' + i
@@ -24,121 +28,118 @@ def parser(x, y):
             if len(i) == 3:
                 n = i
                 break
+
+        # erowid pihkal template as str
         page_template = f"https://erowid.org/library/books_online/pihkal/pihkal{n}.shtml"
+
+        # opening and decoding of source html page
         try:
             page = urlopen(page_template)
             html_page = page.read().decode()
         except:
-            RawDataPath = f"C:\\test\\temp\PROBLEM {n}"
-            os.makedirs(RawDataPath)
-            completeName = os.path.join(RawDataPath, "error" + ".txt")
-            txt_output = open(completeName, "w")
-            txt_output.write(f"Decoding problem.Page url: {page_template}")
-            txt_output.close
+            raw_data_path = f"C:\\test\\temp\PROBLEM {n}"
+            os.makedirs(raw_data_path)
+            complete_name = os.path.join(raw_data_path, "error" + ".txt")
+            txt_output = open(complete_name, "w")
+            txt_output.write(f"Decoding problem. Page url: {page_template}")
             continue
-        #create bs object
+
+        # create bs object from html
         soup = BeautifulSoup(html_page, "html.parser")
-        #extract procedure name
+
+        # extracting procedure name from h2 tag
         try:
-            SynthesisName = str(soup.find_all("h2", text=True))
-            SynthesisName = SynthesisName.split(" ")
-            SynthesisName = SynthesisName[1]
-            SynthesisName = SynthesisName.replace("</h2>", "")
-            SynthesisName = SynthesisName.replace("]", "")
+            synthesis_name = str(soup.find_all("h2", text=True))
+            synthesis_name = synthesis_name.split(" ")
+            synthesis_name = synthesis_name[1]
+            synthesis_name = synthesis_name.replace("</h2>", "")
+            synthesis_name = synthesis_name.replace("]", "")
         except:
-            RawDataPath = f"C:\\test\\temp\Procedure{i}"
-            os.makedirs(RawDataPath)
-            completeName = os.path.join(RawDataPath, "error" + ".txt")
-            txt_output = open(completeName, "w")
+            raw_data_path = f"C:\\test\\temp\Procedure{i}"
+            os.makedirs(raw_data_path)
+            complete_name = os.path.join(raw_data_path, "error" + ".txt")
+            txt_output = open(complete_name, "w")
             txt_output.write("Synthesis name not found.")
             continue
-        #extract text without tags
+        # extracting page text without html tags
         text = soup.find_all(text=True)
+        page_output = ' '.join(text)
 
-        page_output = ''
-        blacklist = [
-        '[document]',
-        'noscript',
-        'header',
-        'html',
-        'meta',
-        'head', 
-        'input',
-        'script',
-        # there may be more elements you don't want, such as "style", etc.
-        ]
-
-        for t in text:
-            if t.parent.name not in blacklist:
-                page_output += '{} '.format(t)
-        page_output = page_output.replace("<br/>","")
+        # this step guaranties correct degree decoding
         page_output = html.unescape(page_output)
 
+        # Searching for synthesis name using RegEx
         try:
             pattern = "SYNTHESIS.*?DOSAGE"
             match_results = re.search(pattern, page_output, re.DOTALL)
             txt = match_results.group()
+
+        # Removing RegEx pattern from text
             txt = (txt[12:-11])
             txt = txt.replace("  ", " ")
         except:
-            RawDataPath = f"C:\\test\\temp\{SynthesisName}"
-            os.makedirs(RawDataPath)
-            completeName = os.path.join(RawDataPath, SynthesisName + ".txt")
-            txt_output = open(completeName, "w")
+            raw_data_path = f"C:\\test\\temp\{synthesis_name}"
+            os.makedirs(raw_data_path)
+            complete_name = os.path.join(raw_data_path, synthesis_name + ".txt")
+            txt_output = open(complete_name, "w")
             txt_output.write("Synthesis info not found.")
             continue
-        
 
-
+        # creating txt file with whole procedure
         try:
-            RawDataPath = f"C:\\test\\temp\{SynthesisName}"
-            os.makedirs(RawDataPath)
-            completeName = os.path.join(RawDataPath, SynthesisName + ".txt")
-            txt_output = open(completeName, "w")
+            raw_data_path = f"C:\\test\\temp\{synthesis_name}"
+            os.makedirs(raw_data_path)
+            complete_name = os.path.join(raw_data_path, synthesis_name + ".txt")
+            txt_output = open(complete_name, "w")
             txt_output.write(txt)
         except:
-            RawDataPath = f"C:\\test\\temp\PROBLEM {n}"
-            os.makedirs(RawDataPath)
-            completeName = os.path.join(RawDataPath, "error" + ".txt")
-            txt_output = open(completeName, "w")
+            raw_data_path = f"C:\\test\\temp\PROBLEM {n}"
+            os.makedirs(raw_data_path)
+            complete_name = os.path.join(raw_data_path, "error" + ".txt")
+            txt_output = open(complete_name, "w")
             txt_output.write(f"Decoding problem. Page url: {page_template} ")
             continue
 
-
-        raw = open(completeName, "r")
-        txtt = raw.read()
-        print(completeName)
-        txtt = txt.split("\n\n")
+        # Splitting of original procedure into list of individual steps
+        source_txt = txt.split("\n\n")
         step = 0
         file_name = "procedure.txt"
 
-        for paragraph in txtt:
+        # Looping over steps and separating into distill an non-distill procedures
+        for paragraph in source_txt:
             step += 1
             if "distil" in paragraph or "Distil" in paragraph:
-                dir= f"C:\\test\distil\CY-ASi-ASi-PiHKAL_1991-cmp_{SynthesisName}_step-{step}"
-                os.makedirs(dir)
-                completeName = os.path.join(dir, file_name)
-                file = open(completeName,"w")
+                synthesis_dir = f"C:\\test\distill\CY-ASi-ASi-PiHKAL_1991-cmp_{synthesis_name}_step-{step}"
+                os.makedirs(synthesis_dir)
+                complete_name = os.path.join(synthesis_dir, file_name)
+                file = open(complete_name, "w")
                 file.write(paragraph)
                 file.close()
             else:
-                dir = f"C:\\test\working_on\CY-ASi-ASi-PiHKAL_1991-cmp_{SynthesisName}_step-{step}"
-                os.makedirs(dir)
-                completeName = os.path.join(dir, file_name)
-                file = open(completeName,"w")
+                synthesis_dir = f"C:\\test\working_on\CY-ASi-ASi-PiHKAL_1991-cmp_{synthesis_name}_step-{step}"
+                os.makedirs(synthesis_dir)
+                complete_name = os.path.join(synthesis_dir, file_name)
+                file = open(complete_name, "w")
                 file.write(paragraph)
                 file.close()
         end_time = datetime.datetime.now()
-
-
+        # time counter
         time_delta = (end_time - start_time)
         execution_time = time_delta.total_seconds()
         time_sum.append(execution_time)
         average_time = (sum(time_sum))/(len(time_sum))
-        ETR_s = (average_time*(y-int(i)))
-        ETR_m = ETR_s/60
-        SSS = ETR_s - 60*round(ETR_m, 0)
-        print(f"Script executed normally, number of steps - {step}. Progress: {round(((int(i)-x+1)/(y-x))*100, 3)}%. Estimated time: {round(ETR_m,0)} min.")
+        etr = (average_time*(y-int(i)))
+        if etr < 59:
+            print(f"Script executed normally, number of steps - {step}. "
+                  f"Progress: {round(((int(i)-x+1)/(y-x))*100, 3)}%. "
+                  f"Estimated time: {round(etr,0)} s.")
+        else:
+            etr_min = math.floor(etr / 60)
+            etr_s = round(etr % 60)
+            print(f"Script executed normally, number of steps - {step}. "
+                  f"Progress: {round(((int(i) - x + 1) / (y - x)) * 100, 3)}%. "
+                  f"Estimated time: {etr_min} min. {etr_s} s.")
 
 
-parser(2, 8)
+
+parser()
