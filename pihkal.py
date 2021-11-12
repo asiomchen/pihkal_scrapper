@@ -14,7 +14,7 @@ def parser(x=1, y=179):
     for i in range(x, y):
         start_time = datetime.datetime.now()
         if i not in range(179):
-                raise ValueError("Only 179 procedures available")
+            raise ValueError("Only 179 procedures available")
         i = str(i)
 
         # modifying number of synthesis to make correct url
@@ -37,7 +37,7 @@ def parser(x=1, y=179):
             page = urlopen(page_template)
             html_page = page.read().decode()
         except:
-            raw_data_path = f"C:\\test\\temp\PROBLEM {n}"
+            raw_data_path = f"C:\\test\\temp\\PROBLEM {n}"
             os.makedirs(raw_data_path)
             complete_name = os.path.join(raw_data_path, "error" + ".txt")
             txt_output = open(complete_name, "w")
@@ -55,7 +55,7 @@ def parser(x=1, y=179):
             synthesis_name = synthesis_name.replace("</h2>", "")
             synthesis_name = synthesis_name.replace("]", "")
         except:
-            raw_data_path = f"C:\\test\\temp\Procedure{i}"
+            raw_data_path = f"C:\\test\\temp\\Procedure{i}"
             os.makedirs(raw_data_path)
             complete_name = os.path.join(raw_data_path, "error" + ".txt")
             txt_output = open(complete_name, "w")
@@ -74,11 +74,11 @@ def parser(x=1, y=179):
             match_results = re.search(pattern, page_output, re.DOTALL)
             txt = match_results.group()
 
-        # Removing RegEx pattern from text
+            # Removing RegEx pattern from text
             txt = (txt[12:-11])
             txt = txt.replace("  ", " ")
         except:
-            raw_data_path = f"C:\\test\\temp\{synthesis_name}"
+            raw_data_path = f"C:\\test\\temp\\{synthesis_name}"
             os.makedirs(raw_data_path)
             complete_name = os.path.join(raw_data_path, synthesis_name + ".txt")
             txt_output = open(complete_name, "w")
@@ -93,7 +93,7 @@ def parser(x=1, y=179):
             txt_output = open(complete_name, "w")
             txt_output.write(txt)
         except:
-            raw_data_path = f"C:\\test\\temp\PROBLEM {n}"
+            raw_data_path = f"C:\\test\\temp\\PROBLEM {n}"
             os.makedirs(raw_data_path)
             complete_name = os.path.join(raw_data_path, "error" + ".txt")
             txt_output = open(complete_name, "w")
@@ -109,37 +109,37 @@ def parser(x=1, y=179):
         for paragraph in source_txt:
             step += 1
             if "distil" in paragraph or "Distil" in paragraph:
-                synthesis_dir = f"C:\\test\distill\CY-ASi-ASi-PiHKAL_1991-cmp_{synthesis_name}_step-{step}"
+                synthesis_dir = f"C:\\test\\distill\\CY-ASi-ASi-PiHKAL_1991-cmp_{synthesis_name}_step-{step}"
                 os.makedirs(synthesis_dir)
                 complete_name = os.path.join(synthesis_dir, file_name)
                 file = open(complete_name, "w")
                 file.write(paragraph)
                 file.close()
             else:
-                synthesis_dir = f"C:\\test\working_on\CY-ASi-ASi-PiHKAL_1991-cmp_{synthesis_name}_step-{step}"
+                synthesis_dir = f"C:\\test\\working_on\\CY-ASi-ASi-PiHKAL_1991-cmp_{synthesis_name}_step-{step}"
                 os.makedirs(synthesis_dir)
                 complete_name = os.path.join(synthesis_dir, file_name)
                 file = open(complete_name, "w")
                 file.write(paragraph)
                 file.close()
-        end_time = datetime.datetime.now()
+
         # time counter
+        end_time = datetime.datetime.now()
         time_delta = (end_time - start_time)
         execution_time = time_delta.total_seconds()
         time_sum.append(execution_time)
-        average_time = (sum(time_sum))/(len(time_sum))
-        etr = (average_time*(y-int(i)))
+        average_time = (sum(time_sum)) / (len(time_sum))
+        etr = (average_time * (y - int(i)))
         if etr < 59:
             print(f"Script executed normally, number of steps - {step}. "
-                  f"Progress: {round(((int(i)-x+1)/(y-x))*100, 3)}%. "
-                  f"Estimated time: {round(etr,0)} s.")
+                  f"Progress: {round(((int(i) - x + 1) / (y - x)) * 100, 3)}%. "
+                  f"Estimated time: {round(etr, 0)} s.")
         else:
             etr_min = math.floor(etr / 60)
             etr_s = round(etr % 60)
             print(f"Script executed normally, number of steps - {step}. "
                   f"Progress: {round(((int(i) - x + 1) / (y - x)) * 100, 3)}%. "
                   f"Estimated time: {etr_min} min. {etr_s} s.")
-
 
 
 parser()
