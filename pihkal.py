@@ -4,10 +4,10 @@ import re
 import os
 import datetime
 import html
-import math
+from math import floor as round_down
 
 
-def parser(x=1, y=179):
+def pihkal_scrapper(x=1, y=179):
     time_sum = []
 
     # read url
@@ -44,7 +44,7 @@ def parser(x=1, y=179):
             txt_output.write(f"Decoding problem. Page url: {page_template}")
             continue
 
-        # create bs object from html
+        # creating bs object from html
         soup = BeautifulSoup(html_page, "html.parser")
 
         # extracting procedure name from h2 tag
@@ -135,11 +135,11 @@ def parser(x=1, y=179):
                   f"Progress: {round(((int(i) - x + 1) / (y - x)) * 100, 3)}%. "
                   f"Estimated time: {round(etr, 0)} s.")
         else:
-            etr_min = math.floor(etr / 60)
+            etr_min = round_down(etr / 60)
             etr_s = round(etr % 60)
             print(f"Script executed normally, number of steps - {step}. "
                   f"Progress: {round(((int(i) - x + 1) / (y - x)) * 100, 3)}%. "
                   f"Estimated time: {etr_min} min. {etr_s} s.")
 
 
-parser()
+pihkal_scrapper()
