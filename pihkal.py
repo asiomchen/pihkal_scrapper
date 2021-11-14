@@ -87,7 +87,7 @@ def pihkal_scrapper(x=1, y=179):
 
         # creating txt file with whole procedure
         try:
-            raw_data_path = f"C:\\test\\temp\{synthesis_name}"
+            raw_data_path = f"C:\\test\\temp\\{synthesis_name}"
             os.makedirs(raw_data_path)
             complete_name = os.path.join(raw_data_path, synthesis_name + ".txt")
             txt_output = open(complete_name, "w")
