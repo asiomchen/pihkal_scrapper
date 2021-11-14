@@ -131,13 +131,13 @@ def pihkal_scrapper(x=1, y=179):
         average_time = (sum(time_sum)) / (len(time_sum))
         etr = (average_time * (y - int(i)))
         if etr < 59:
-            print(f"Script executed normally, number of steps - {step}. "
+            print(f"Script executed normally, compound name - {synthesis_name}, number of steps - {step}. "
                   f"Progress: {round(((int(i) - x + 1) / (y - x)) * 100, 3)}%. "
                   f"Estimated time: {round(etr, 0)} s.")
         else:
             etr_min = round_down(etr / 60)
             etr_s = round(etr % 60)
-            print(f"Script executed normally, number of steps - {step}. "
+            print(f"Script executed normally, compound name - {synthesis_name}, number of steps - {step}. "
                   f"Progress: {round(((int(i) - x + 1) / (y - x)) * 100, 3)}%. "
                   f"Estimated time: {etr_min} min. {etr_s} s.")
 
