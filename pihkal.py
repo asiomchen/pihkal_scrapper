@@ -1,17 +1,25 @@
-from bs4 import BeautifulSoup
-from urllib.request import urlopen
+import sys
 import re
 import os
 import datetime
 import html
+from bs4 import BeautifulSoup
+from urllib.request import urlopen
 from math import floor as round_down
 
 
-def pihkal_scrapper(x=1, y=179):
-    time_sum = []
+def pihkal_scrapper(start_procedure: int = 1, end_procedure: int = 179)-> None:
+    """
+    Scraps the erowid pihkal DB and saves the synthesis data in separate txt files
+    :param start_procedure:  start procedure number
+    :param end_procedure:  end procedure number
+    :return: None
+    """
 
+    time_sum = []
     # read url
-    for i in range(x, y):
+    cwd = os.getcwd()
+    for i in range(start_procedure, end_procedure):
         start_time = datetime.datetime.now()
         if i not in range(179):
             raise ValueError("Only 179 procedures available")
@@ -37,7 +45,8 @@ def pihkal_scrapper(x=1, y=179):
             page = urlopen(page_template)
             html_page = page.read().decode()
         except:
-            raw_data_path = f"C:\\test\\temp\\PROBLEM {n}"
+            raw_data_path = f'{cwd}/temp/problem_{i}'
+            #raw_data_path = f"C:\\test\\temp\\PROBLEM {n}"
             os.makedirs(raw_data_path)
             complete_name = os.path.join(raw_data_path, "error" + ".txt")
             txt_output = open(complete_name, "w")
@@ -55,7 +64,8 @@ def pihkal_scrapper(x=1, y=179):
             synthesis_name = synthesis_name.replace("</h2>", "")
             synthesis_name = synthesis_name.replace("]", "")
         except:
-            raw_data_path = f"C:\\test\\temp\\Procedure{i}"
+            raw_data_path = f'{cwd}/temp/Procedure{i}'
+            #raw_data_path = f"C:\\test\\temp\\Procedure{i}"
             os.makedirs(raw_data_path)
             complete_name = os.path.join(raw_data_path, "error" + ".txt")
             txt_output = open(complete_name, "w")
@@ -78,7 +88,8 @@ def pihkal_scrapper(x=1, y=179):
             txt = (txt[12:-11])
             txt = txt.replace("  ", " ")
         except:
-            raw_data_path = f"C:\\test\\temp\\{synthesis_name}"
+            raw_data_path = f'{cwd}/temp/{synthesis_name }'
+            #raw_data_path = f"C:\\test\\temp\\{synthesis_name}"
             os.makedirs(raw_data_path)
             complete_name = os.path.join(raw_data_path, synthesis_name + ".txt")
             txt_output = open(complete_name, "w")
@@ -87,12 +98,14 @@ def pihkal_scrapper(x=1, y=179):
 
         # creating txt file with whole procedure
         try:
-            raw_data_path = f"C:\\test\\temp\\{synthesis_name}"
+            raw_data_path = f'{cwd}/temp/{synthesis_name}'
+            #raw_data_path = f"C:\\test\\temp\\{synthesis_name}"
             os.makedirs(raw_data_path)
             complete_name = os.path.join(raw_data_path, synthesis_name + ".txt")
             txt_output = open(complete_name, "w")
             txt_output.write(txt)
         except:
+            raw_data_path = f'{cwd}/temp/Problem {n}'
             raw_data_path = f"C:\\test\\temp\\PROBLEM {n}"
             os.makedirs(raw_data_path)
             complete_name = os.path.join(raw_data_path, "error" + ".txt")
@@ -109,14 +122,16 @@ def pihkal_scrapper(x=1, y=179):
         for paragraph in source_txt:
             step += 1
             if "distil" in paragraph or "Distil" in paragraph:
-                synthesis_dir = f"C:\\test\\distill\\CY-ASi-ASi-PiHKAL_1991-cmp_{synthesis_name}_step-{step}"
+                synthesis_dir = f'{cwd}/distill_procedures/CY-ASi-ASi-PiHKAL_1991-cmp_{synthesis_name}_step-{step}'
+                #synthesis_dir = f"C:\\test\\distill\\CY-ASi-ASi-PiHKAL_1991-cmp_{synthesis_name}_step-{step}"
                 os.makedirs(synthesis_dir)
                 complete_name = os.path.join(synthesis_dir, file_name)
                 file = open(complete_name, "w")
                 file.write(paragraph)
                 file.close()
             else:
-                synthesis_dir = f"C:\\test\\working_on\\CY-ASi-ASi-PiHKAL_1991-cmp_{synthesis_name}_step-{step}"
+                synthesis_dir = f'{cwd}/non_distill_procedures/CY-ASi-ASi-PiHKAL_1991-cmp_{synthesis_name}_step-{step}'
+                #synthesis_dir = f"C:\\test\\working_on\\CY-ASi-ASi-PiHKAL_1991-cmp_{synthesis_name}_step-{step}"
                 os.makedirs(synthesis_dir)
                 complete_name = os.path.join(synthesis_dir, file_name)
                 file = open(complete_name, "w")
@@ -129,17 +144,18 @@ def pihkal_scrapper(x=1, y=179):
         execution_time = time_delta.total_seconds()
         time_sum.append(execution_time)
         average_time = (sum(time_sum)) / (len(time_sum))
-        etr = (average_time * (y - int(i)))
+        etr = (average_time * (end_procedure - int(i)))
         if etr < 59:
             print(f"Script executed normally, compound name - {synthesis_name}, number of steps - {step}. "
-                  f"Progress: {round(((int(i) - x + 1) / (y - x)) * 100, 3)}%. "
+                  f"Progress: {round(((int(i) - start_procedure + 1) / (end_procedure - start_procedure)) * 100, 3)}%. "
                   f"Estimated time: {round(etr, 0)} s.")
         else:
             etr_min = round_down(etr / 60)
             etr_s = round(etr % 60)
             print(f"Script executed normally, compound name - {synthesis_name}, number of steps - {step}. "
-                  f"Progress: {round(((int(i) - x + 1) / (y - x)) * 100, 3)}%. "
+                  f"Progress: {round(((int(i) - start_procedure + 1) / (end_procedure - start_procedure)) * 100, 3)}%. "
                   f"Estimated time: {etr_min} min. {etr_s} s.")
 
 
-pihkal_scrapper()
+if __name__ == "__main__":
+    pihkal_scrapper()
