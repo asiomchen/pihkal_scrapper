@@ -158,4 +158,16 @@ def pihkal_scrapper(start_procedure: int = 1, end_procedure: int = 179)-> None:
 
 
 if __name__ == "__main__":
-    pihkal_scrapper()
+
+    if len(sys.argv) == 1:
+        print('Script will be executed with default values.')
+        pihkal_scrapper()
+    elif len(sys.argv) == 2:
+        start = int(sys.argv[1])
+        print('Script will be executed with default values.')
+        pihkal_scrapper(start)
+    else:
+        start = int(sys.argv[1])
+        end = int(sys.argv[2])
+        pihkal_scrapper(start, end)
+
